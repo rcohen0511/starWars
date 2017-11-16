@@ -1,0 +1,118 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src=".\dist\tablefilter\tablefilter.js"></script>
+<script>
+// add comments
+function iterateFilms(charName, gender, filmList){
+  // console.log($('#StarWarsTable').find("tr").text());
+  for (var i = 0; i < filmList.length; i++) {
+    jQuery.getJSON(filmList[i], function(data) {
+      writeRow(charName, data.title, gender);
+    });
+  };
+}
+
+function writeRow(charName, films, gender) {
+  // console.log(charName, films, gender);
+  $('#StarWarsTable').append('<tr><td class="charName">'
+    + charName + '</td><td class="films">'
+    + films + '</td><td class="gender">'
+    + gender +'</td></tr>');
+}
+
+
+function iterateCharacterlist(charList) {
+  for (var i=0; i < charList.length; i++){
+    iterateFilms(charList[i]['name'], charList[i]['gender'], charList[i]['films']);
+  }
+}
+
+// var tableData = [];
+// function addToDict(charName, films, gender){
+//   // console.log(charName, films, gender);
+//   for(var i = 0; i < tableData.length; i++){
+//     console.log(tableData[i]['charName']);
+//     if (charName ===tableData[i]['charName']){
+//       var currentFilms = tableData[i]['films'];
+//       tableData[i]['films'] = currentFilms + ", films"
+//     } else {
+//       tableData.push({'charName':charName, 'films':films, 'gender':gender});
+//     }
+//
+//   }
+//
+// }
+
+
+// function writeRow(charName, films, gender) {
+//
+//     $('#StarWarsTable td:nth-child(1)').each(function(){
+//         var currentItem = $(this);
+//         // console.log(currentItem);
+//         if(currentItem.text()===charName){
+//           currentFilms = currentItem.closest("tr").find(".films").text()
+//           currentItem.closest("tr").find(".films").text(currentFilms+", "+films);
+//         } else {
+//
+//         }
+//
+//       });
+//       $('#StarWarsTable').append('<tr><td class="charName">' + charName + '</td><td class="films">' + films + '</td><td class="gender">' + gender +'</td></tr>');
+//
+// }
+
+
+
+
+ function addFilters(){
+   var filtersConfig = {
+     // instruct TableFilter location to import ressources from
+     base_path: 'https://unpkg.com/tablefilter@latest/dist/tablefilter/',
+     col_0: 'select',
+     col_1: 'select',
+     col_2: 'select',
+     col_3: 'select',
+   };
+
+   var tf = new TableFilter('StarWarsTable', filtersConfig);
+   tf.init();
+ }
+
+ function loadData(url) {
+     jQuery.getJSON(url, function(data) {
+       // console.log(data.results);
+       if (data.next === null){
+         console.log('here')
+         iterateCharacterlist(data.results);
+         // addFilters();
+       } else {
+         iterateCharacterlist(data.results);
+         loadData(data.next);
+       }
+     })
+   }
+
+loadData('https://swapi.co/api/people/')
+// loadData('https://swapi.co/api/people/?page=9');
+
+</script>
+
+</head>
+<body>
+<h1>TableFilter starter</h1>
+<table id="StarWarsTable">
+    <thead>
+        <tr>
+            <th>Character Name</th>
+            <th>Film</th>
+            <th>Gender</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+</body>
+
+
+</html>

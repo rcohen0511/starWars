@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src=".\dist\tablefilter\tablefilter.js"></script>
+  </head>
+
+  <script>
+    var table = {};
+
+    $(document).ready(function(){
+      $('#swtable').on('gridComplete', renderGrid);
+      getPeople('https://swapi.co/api/people');
+    });
+
+    function getPeople(url){
+      var lastIteration = false;
+      $.getJSON(url, function(data){
+        $.each(data.results, function(index, peopleInfo){
+          if (index === data.results.length-1) {
+              lastIteration = true;
+          }
+          addPerson(peopleInfo.name, peopleInfo.gender);
+          getFilms(peopleInfo.name, peopleInfo.films, lastIteration);
+        });
+      });
+    };
+
+    function getFilms(charName, filmUrls, lastIteration){
+      $.each(filmUrls, function(index, filmUrl){
+        $.getJSON(filmUrl, function(data){
+            addTitle(data.title, charName);
+            if (lastIteration && index === filmUrls.length-1) {
+                $('#swtable').trigger('gridComplete');
+            }
+        });
+      });
+    };
+
+    function addTitle(title, name){
+      table[name]['films'].push(title);
+    };
+
+    function addPerson(name, gender){
+      table[name]={'name':name, 'gender':gender, 'films':[]}
+      return false;
+    }
+
+    function renderGrid() {
+        $.each(table, function(key, value){
+            console.log(key, value);
+        });
+        // console.log("rendering Grid")
+
+    }
+
+  </script>
+
+<body>
+  <h1>TableFilter starter</h1>
+  <table id="swtable">
+      <thead>
+          <tr>
+              <th>Character Name</th>
+              <th>Film</th>
+              <th>Gender</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+  </table>
+</body>
+
+</html>
